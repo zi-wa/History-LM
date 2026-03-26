@@ -1,5 +1,32 @@
 # History-LM
 **Persona-Adaptive Dual-Model Framework for Local Memory Management**
+```mermaid
+---
+config:
+  layout: dagre
+---
+flowchart LR
+ subgraph loop["Inference Loop"]
+        System["System Prompt with History"]
+        History["History"]
+        MainLM["Main Inference Model"]
+        User["User Prompt"]
+        Response["Persona Response"]
+        SummLM["Context Summarization Model"]
+  end
+    System --> MainLM
+    BaseSystem["Base System Prompt"] --> System
+    History --> System
+    User --> MainLM
+    MainLM --> Response
+    Response --> SummLM
+    SummLM --> History
+
+    style MainLM fill:#ff9,stroke:#333,stroke-width:2px,color:#000
+    style History fill:#bbf,stroke:#333,stroke-width:2px,color:#000
+    style SummLM fill:#ff9,stroke:#333,stroke-width:2px,color:#000
+    style loop stroke:#666,stroke-dasharray: 5 5
+```
 
 ## Features
 - **Dual-Model Architecture**: Separates **Main Inference** and **Context Summarization** to maintain long-term memory without VRAM overflow.

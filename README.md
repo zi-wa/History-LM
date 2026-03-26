@@ -1,5 +1,5 @@
 # History LM
-**Persona-Adaptive Dual-Model Framework for Local Memory Management**
+**Persona-Adaptive Dual-Model Framework for Optimized Memory Management**
 ```mermaid
 ---
 config:

@@ -8,22 +8,25 @@ config:
 flowchart LR
  subgraph loop["Inference Loop"]
         System["System Prompt with History"]
-        History["History"]
+        History["Compressed History"]
         MainLM["Main Inference Model"]
         User["User Prompt"]
         Response["Persona Response"]
         SummLM["Context Summarization Model"]
+        HistorySys["Chat History"]
   end
-    System --> MainLM
-    BaseSystem["Base System Prompt"] --> System
+    BaseSystem["Base Main Inference System Prompt"] --> System
+    BaseHis["Base History Summarization System Prompt"] --> SummLM
     History --> System
-    User --> MainLM
+    User --> MainLM & HistorySys
+    System --> MainLM
     MainLM --> Response
-    Response --> SummLM
+    Response --> HistorySys
     SummLM --> History
+    HistorySys --> SummLM
 
-    style MainLM fill:#ff9,stroke:#333,stroke-width:2px,color:#000
     style History fill:#bbf,stroke:#333,stroke-width:2px,color:#000
+    style MainLM fill:#ff9,stroke:#333,stroke-width:2px,color:#000
     style SummLM fill:#ff9,stroke:#333,stroke-width:2px,color:#000
     style loop stroke:#666,stroke-dasharray: 5 5
 ```

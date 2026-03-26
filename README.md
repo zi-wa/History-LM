@@ -1,4 +1,4 @@
-# History-LM
+# History LM
 **Persona-Adaptive Dual-Model Framework for Local Memory Management**
 ```mermaid
 ---

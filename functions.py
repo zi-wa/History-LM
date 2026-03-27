@@ -1,5 +1,6 @@
 from transformers import AutoTokenizer, AutoModelForCausalLM # 2026.03.11. (4.57.3 -> 5.3.0)
 import torch
+import vars as v
 
 # ================================================================
 
@@ -40,6 +41,6 @@ def response(model, tokenizer, inputs):
     return tokenizer.decode(outputs[0][inputs["input_ids"].shape[-1]:], skip_special_tokens=True)
 
 def summ(summ_model, summ_tockenizer, user_prompt, outputs, summ_system_prompt):
-    summUserPrompt = f"The user said: {user_prompt}. Sansbot said: {outputs}."
+    summUserPrompt = f"The user said: {user_prompt}. {v.Who} said: {outputs}."
     summInputs = prompt(summ_model, summ_tockenizer, summUserPrompt, summ_system_prompt)
     return response(summ_model, summ_tockenizer, summInputs)

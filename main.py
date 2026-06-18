@@ -1,33 +1,65 @@
+import warnings
+warnings.filterwarnings("ignore", category=FutureWarning)
+
 import sys
-import functions as f
+import torch
 import vars as v
+from model import HistoryLM
 
-# ================================================================
+def line():
+    print("\n", "="*64, "\n")
 
-History = ""
+def setdevice():
+    if torch.cuda.is_available():
+        return True
+    else:
+        return False
 
-if not f.setdevice():
-    sys.exit("Could not find CUDA")
+def template(model, input):
+    if model.has_user_template:
+        input = model.user_template.format(chat_input=input)
+    return model.few_shot_text + input
 
-Model, Tokenizer = f.setmodel(v.ModelName, v.QuantConfig)
-SummModel, SummTokenizer = f.setmodel(v.SummModelName, v.QuantConfig)
+def main():
+    
+    if not setdevice():
+        sys.exit("Could not find CUDA")
+        
+    MainModel = HistoryLM(v.MainInfoDir)
+    SummModel = HistoryLM(v.SummInfoDir)
 
-f.line()
+    line()
 
-while True:
-    UserPrompt = input("User: ")
-    f.line()
+    while True:
+        UserPrompt = input("User: ")
+        if UserPrompt == "!break":
+            sys.exit()
+        TempUserPrompt = template(MainModel, UserPrompt)
+        MainModel.messages.append({"role": "user", "content": TempUserPrompt})
+        line()
 
-    if UserPrompt == "!break":
-        sys.exit()
-
-    HisSystemPrompt = v.SystemPrompt + f" Following is the chat history. {History}"
-
-    Inputs = f.prompt(Model, Tokenizer, UserPrompt, HisSystemPrompt)
-    Outputs = f.response(Model, Tokenizer, Inputs)
-
-    f.line()
-    print(f"{v.Who}: {Outputs}")
-    f.line()
-
-    History = f.summ(SummModel, SummTokenizer, UserPrompt, Outputs, v.SummSystemPrompt)
+        # Main Model
+        Inputs = MainModel.tokenize()
+        print(f"Model: ", end = "")
+        Outputs = MainModel.response(Inputs)
+        
+        line()
+        
+        # Summarize Model
+        History = []
+        for context in [UserPrompt, Outputs]:
+            if len(context) >= 128:
+                HisContext = template(SummModel, context)
+                SummModel.messages.append({"role": "user", "content": HisContext})
+                HisInputs = SummModel.tokenize()
+                History.append(SummModel.response(HisInputs))
+            else:
+                History.append(context)
+            SummModel.messages.pop(-1)
+        
+        MainModel.messages.pop(-1)
+        MainModel.messages.append({"role": "user", "content": History[0]})
+        MainModel.messages.append({"role": "assistant", "content": History[1]})
+        
+if __name__ == "__main__":
+    main()

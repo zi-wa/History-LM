@@ -33,7 +33,6 @@ flowchart LR
 
 ## Features
 - **Dual-Model Architecture**: Separates **Main Inference** and **Context Summarization** to maintain long-term memory without VRAM overflow.
-- **Soft-Coded Personas**: Easily switch or add AI identities via `SystemPromptDict` without modifying core logic.
 - **Memory Efficiency**: Optimized with 4-bit NF4 Quantization to run models on consumer-grade GPUs.
 - **Infinite Context**: Automatically condenses dialogue history into a 3-sentence summary for every turn.
 - **Hardware Requirements**: Requires CUDA-enabled GPU.

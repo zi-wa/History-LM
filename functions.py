@@ -40,7 +40,7 @@ def response(model, tokenizer, inputs):
     outputs = model.generate(**inputs, max_new_tokens=32768)
     return tokenizer.decode(outputs[0][inputs["input_ids"].shape[-1]:], skip_special_tokens=True)
 
-def summ(summ_model, summ_tockenizer, user_prompt, outputs, summ_system_prompt):
+def summ(summ_model, summ_tokenizer, user_prompt, outputs, summ_system_prompt):
     summUserPrompt = f"The user said: {user_prompt}. {v.Who} said: {outputs}."
-    summInputs = prompt(summ_model, summ_tockenizer, summUserPrompt, summ_system_prompt)
-    return response(summ_model, summ_tockenizer, summInputs)
+    summInputs = prompt(summ_model, summ_tokenizer, summUserPrompt, summ_system_prompt)
+    return response(summ_model, summ_tokenizer, summInputs)

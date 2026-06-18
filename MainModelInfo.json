@@ -1,0 +1,13 @@
+{
+  "model_config": {
+    "model_id": "meta-llama/Meta-Llama-3.1-8B-Instruct",
+    "max_new_tokens": 1024,
+    "quantized": 1,
+    "few_shots": 0,
+    "user_template": 0,
+    "tie_word_embeddings": 0,
+    "use_streamer": 1
+  },
+
+  "system_prompt": "You are a help AI assistant of the user. Use British English."
+}

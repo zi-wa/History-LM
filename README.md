@@ -22,19 +22,20 @@ A terminal chatbot that keeps conversation history **compact**. A large inferenc
 ```mermaid
 sequenceDiagram
     actor User
+    participant Mem  as messages[ ]
     participant Main as Main LLM
     participant Summ as Summarization LLM
-    participant Mem  as messages[ ]
+
 
     Mem->>Main: chat history
-    User->>Main: prompt
-    User->>Mem: raw prompt
+    User->>Mem: prompt
+    Mem->>Main: prompt
     Main-->>User: stream response
-    Main->>Summ: response
     Mem->>Summ: prompt
     Summ->>Mem: compressed prompt
+    Main->>Summ: response
     Summ->>Mem: compressed response
-    Mem-->>Mem: replace history
+    Mem->>Mem: replace history
 
 ```
 

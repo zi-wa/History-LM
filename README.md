@@ -26,19 +26,19 @@ sequenceDiagram
     participant Summ as Summarization LLM
     participant Mem  as messages[ ]
 
+    Mem->>Main: chat history
     User->>Main: prompt
-    Main->>Mem: append raw turn
+    User->>Mem: raw prompt
     Main-->>User: stream response
+    Main->>Summ: response
+    Mem->>Summ: prompt
+    Summ->>Mem: compressed prompt
+    Summ->>Mem: compressed response
+    Mem-->>Mem: replace history
 
-    alt len >= 128 chars
-        Summ->>Summ: compress user prompt
-        Summ->>Summ: compress response
-    end
-
-    Mem->>Mem: replace raw turn with compressed pair
 ```
 
-Every turn: generate → compress → replace.
+Every turn: generate → compress → replace history.
 
 ---
 

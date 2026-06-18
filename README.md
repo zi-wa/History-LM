@@ -13,7 +13,7 @@
 
 ---
 
-A terminal chatbot that keeps conversation history **flat in token count, forever**. A large inference model generates replies; a small compression model reduces each turn to a lossless caveman-style summary before it enters the message store. The context window never grows.
+A terminal chatbot that keeps conversation history **compact**. A large inference model generates replies; a small compression model reduces each turn to a lossless caveman-style summary before it enters the message store.
 
 ---
 
@@ -38,7 +38,7 @@ sequenceDiagram
     Mem->>Mem: replace raw turn with compressed pair
 ```
 
-Every turn: generate → compress → replace. The message list stays the same size.
+Every turn: generate → compress → replace.
 
 ---
 

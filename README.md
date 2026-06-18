@@ -1,44 +1,94 @@
-# History LM
-**Persona-Adaptive Dual-Model Framework for Optimized Memory Management**
-```mermaid
----
-config:
-  layout: dagre
----
-flowchart LR
- subgraph loop["Inference Loop"]
-        System["System Prompt with History"]
-        History["Compressed History"]
-        MainLM["Main Inference Model"]
-        User["User Prompt"]
-        Response["Persona Response"]
-        SummLM["Context Summarization Model"]
-        HistorySys["Chat History"]
-  end
-    BaseSystem["Base Main Inference System Prompt"] --> System
-    BaseHis["Base History Summarization System Prompt"] --> SummLM
-    History --> System
-    User --> MainLM & HistorySys
-    System --> MainLM
-    MainLM --> Response
-    Response --> HistorySys
-    SummLM --> History
-    HistorySys --> SummLM
+﻿<div align="center">
 
-    style History fill:#bbf,stroke:#333,stroke-width:2px,color:#000
-    style MainLM fill:#ff9,stroke:#333,stroke-width:2px,color:#000
-    style SummLM fill:#ff9,stroke:#333,stroke-width:2px,color:#000
-    style loop stroke:#666,stroke-dasharray: 5 5
+<img src="banner.png" alt="History LM" width="100%"/>
+
+<br/><br/>
+
+<a href="https://www.python.org/"><img src="https://img.shields.io/badge/Python-3.10%2B-3776AB?style=flat-square&logo=python&logoColor=white"/></a>
+<a href="https://pytorch.org/"><img src="https://img.shields.io/badge/PyTorch-CUDA_Required-EE4C2C?style=flat-square&logo=pytorch&logoColor=white"/></a>
+<a href="https://huggingface.co/docs/transformers"><img src="https://img.shields.io/badge/HuggingFace-Transformers-FFD21E?style=flat-square&logo=huggingface&logoColor=black"/></a>
+<a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green?style=flat-square"/></a>
+
+</div>
+
+---
+
+A terminal chatbot that keeps conversation history **flat in token count, forever**. A large inference model generates replies; a small compression model reduces each turn to a lossless caveman-style summary before it enters the message store. The context window never grows.
+
+---
+
+## How It Works
+
+```mermaid
+sequenceDiagram
+    actor User
+    participant Main as Main LLM
+    participant Summ as Summarization LLM
+    participant Mem  as messages[ ]
+
+    User->>Main: prompt
+    Main->>Mem: append raw turn
+    Main-->>User: stream response
+
+    alt len >= 128 chars
+        Summ->>Summ: compress user prompt
+        Summ->>Summ: compress response
+    end
+
+    Mem->>Mem: replace raw turn with compressed pair
 ```
 
-## Features
-- **Dual-Model Architecture**: Separates **Main Inference** and **Context Summarization** to maintain long-term memory without VRAM overflow.
-- **Memory Efficiency**: Optimized with 4-bit NF4 Quantization to run models on consumer-grade GPUs.
-- **Infinite Context**: Automatically condenses dialogue history into a 3-sentence summary for every turn.
-- **Hardware Requirements**: Requires CUDA-enabled GPU.
-- **Models**: Meta-Llama-3.1-8B & Qwen-0.6B (Default Settings).
+Every turn: generate → compress → replace. The message list stays the same size.
+
+---
+
+## Configuration
+
+Each model is driven by a JSON file — no code changes needed to swap models.
+
+| Field | Description |
+|---|---|
+| `model_id` | HuggingFace repo ID or local path |
+| `max_new_tokens` | Token generation limit |
+| `quantized` | `1` → 4-bit NF4 · `0` → bfloat16 |
+| `few_shots` | `1` → prepend example pairs to every user message |
+| `user_template` | `1` → wrap user input with `{chat_input}` template |
+| `tie_word_embeddings` | Passed to `from_pretrained`; model-specific |
+| `system_prompt` | Inserted at `messages[0]` |
+
+**Defaults:** `meta-llama/Meta-Llama-3.1-8B-Instruct` (main) · `LiquidAI/LFM2.5-350M` (summarizer)
+
+To swap a model, edit `model_id` in `MainModelInfo.json` or `SummModelInfo.json`.
+
+---
 
 ## Installation
+
 ```bash
-pip install torch transformers bitsandbytes accelerate
+pip install -r requirements.txt
 ```
+
+> [!IMPORTANT]
+> Install the PyTorch build matching your CUDA toolkit. See [pytorch.org/get-started/locally](https://pytorch.org/get-started/locally/).
+
+---
+
+## Usage
+
+```bash
+python main.py
+```
+
+| Input | Action |
+|---|---|
+| Any text | Send to main model |
+| `!break` | Exit |
+
+> [!WARNING]
+> A CUDA-capable GPU is required. The program exits immediately if none is detected.
+
+---
+
+## License
+
+[MIT](LICENSE)

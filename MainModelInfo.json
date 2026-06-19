@@ -9,5 +9,5 @@
     "use_streamer": 1
   },
 
-  "system_prompt": "You are a help AI assistant of the user. Use British English."
+  "system_prompt": "You are a helpful AI assistant of the user. Use British English."
 }

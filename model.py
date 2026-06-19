@@ -22,6 +22,7 @@ class HistoryLM:
         self.quantized = info["model_config"]["quantized"]
         self.has_few_shots = info["model_config"]["few_shots"]
         self.has_user_template = info["model_config"]["user_template"]
+        self.use_streamer = info["model_config"]["use_streamer"]
         self.tie_word_embeddings = bool(info["model_config"]["tie_word_embeddings"])
 
         self.system_prompt = info["system_prompt"]
@@ -52,7 +53,8 @@ class HistoryLM:
                 tie_word_embeddings = self.tie_word_embeddings,
             )            
         self.tokenizer = AutoTokenizer.from_pretrained(self.model_id, clean_up_tokenization_spaces = False,)
-        self.streamer = TextStreamer(self.tokenizer, skip_prompt = True, skip_special_tokens = True,)
+        if self.use_streamer:
+            self.streamer = TextStreamer(self.tokenizer, skip_prompt = True, skip_special_tokens = True,)
     
     def tokenize(self):
         return self.tokenizer.apply_chat_template(
@@ -63,10 +65,17 @@ class HistoryLM:
         ).to(self.model.device)
 
     def response(self, inputs):
-        outputs = self.model.generate(
-            **inputs, 
-            max_new_tokens= self.max_new_tokens, 
-            streamer= self.streamer,
-            pad_token_id= self.tokenizer.eos_token_id,
-        )
+        if self.use_streamer:
+            outputs = self.model.generate(
+                **inputs, 
+                max_new_tokens= self.max_new_tokens, 
+                streamer= self.streamer,
+                pad_token_id= self.tokenizer.eos_token_id,
+            )
+        else:
+            outputs = self.model.generate(
+                **inputs, 
+                max_new_tokens= self.max_new_tokens, 
+                pad_token_id= self.tokenizer.eos_token_id,
+            )
         return self.tokenizer.decode(outputs[0][inputs["input_ids"].shape[-1]:], skip_special_tokens=True)

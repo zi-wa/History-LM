@@ -53,9 +53,10 @@ def main():
                 SummModel.messages.append({"role": "user", "content": HisContext})
                 HisInputs = SummModel.tokenize()
                 History.append(SummModel.response(HisInputs))
+                SummModel.messages.pop(-1)
             else:
                 History.append(context)
-            SummModel.messages.pop(-1)
+            
         
         MainModel.messages.pop(-1)
         MainModel.messages.append({"role": "user", "content": History[0]})

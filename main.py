@@ -1,6 +1,7 @@
 import warnings
 warnings.filterwarnings("ignore", category=FutureWarning)
 
+import re
 import sys
 import torch
 import vars as v
@@ -52,7 +53,7 @@ def main():
                 HisContext = template(SummModel, context)
                 SummModel.messages.append({"role": "user", "content": HisContext})
                 HisInputs = SummModel.tokenize()
-                History.append(SummModel.response(HisInputs))
+                History.append(re.sub(r"['\"\s]",r"",SummModel.response(HisInputs)))
                 SummModel.messages.pop(-1)
             else:
                 History.append(context)
@@ -64,3 +65,4 @@ def main():
         
 if __name__ == "__main__":
     main()
+    print(re.sub(r"['\"]",r"","test"))

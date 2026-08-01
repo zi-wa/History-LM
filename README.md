@@ -1,4 +1,4 @@
-Terminal Chatbot that keeps conversation history **Compact**.
+Terminal Chatbot that Keeps Conversation History **Compact**
 
 ---
 ## How It Works
